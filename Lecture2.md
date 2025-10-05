@@ -35,22 +35,24 @@ Supplementary Reading
 
 00:00 : Image Classification - What is it? 
 
-05:00 : Image Classification - Why is it hard? Semantic Gap? 
-- Illumination / Shadows 
-  - eg: cats in shadows
-- Background Clutter
-  - eg: white cat in a field of snow, brown cat in a dirt hill
-- Occlusion 
-  - eg: cat hiding under a cushion, only the tail showing
-- Scale / Zooming in and out
-- Resolution 
-  - Note: not considered as big an issue, since we normalize the image
-- Deformation
-  - eg: cats sitting or lying, looking deformed
-- Interclass variation 
-  - eg: different colored cats
-- Context 
-  - eg: dog with shadow vs tiger
+05:00 : Image Classification - Why is it hard? 
+
+- **Semantic Gap** between pixel representations and the meaning or features that humans can interpret
+  - Illumination / Shadows 
+    - eg: cats in shadows
+  - Background Clutter
+    - eg: white cat in a field of snow, brown cat in a dirt hill
+  - Occlusion 
+    - eg: cat hiding under a cushion, only the tail showing
+  - Scale / Zooming in and out
+  - Resolution 
+    - Note: not considered as big an issue, since we normalize the image
+  - Deformation
+    - eg: cats sitting or lying, looking deformed
+  - Interclass variation 
+    - eg: different colored cats
+  - Context 
+    - eg: dog with shadow vs tiger
 
 11:52 : Interface for an Image Classifier
 ```python
@@ -96,8 +98,9 @@ def predict(model, test_images):
     - **TIP**: This is a signal indicating that we might want to collect more training data for these regions.
   
 - HyperParameters
-  - What is the best value of $K$ to use?
-    - Pick $K$ nearest neighbors and do majority voting
+  - What is the best value of $k$ to use?
+    - Pick $k$ nearest neighbors and do majority voting.
+    - Use cross-validation over train/val/test set, specifically the validation set, to dtermine $k$
     - We may end up with regions where we can't reach a decision. 
   - What is the best distance to use? (Slide 2-31)
     - L1 (Manhattan) distance: $d_1(I_1,I_2) = \sum_p | I_1^p - I_2^p|$
@@ -106,6 +109,7 @@ def predict(model, test_images):
     - **QUIZ**
       - Why is L1-sparse?
       - What does L1 retain?
+      - Consider 2D geometric visualization while optimizing parameters of a straight line (hyperplane)
   - Demo to try kNN: http://vision.stanford.edu/teaching/cs231n-demos/knn/
 
 - **QUIZ** - why are kNNs rarely used? (Slide 2-50)
@@ -154,7 +158,7 @@ def predict(model, test_images):
 
 $$\text{Image} \rightarrow f(x,W) \rightarrow \text{10 numbers giving class scores}$$
 $$f(x,W) = W x + b$$
-$$\underbrace{f(x,W)}_{10 \times 1} = \underbrace{W}_{10\times 3072} \, \underbrace{x}_{3072\times 1} + \underbrace{b}_{10\times 1}$$
+$$\underbrace{f(x,W)}_{10 \times 1} = \underbrace{W}_{10\times 3072}  \underbrace{x}_{3072\times 1} + \underbrace{b}_{10\times 1}$$
 $$x = \text{flattened vector representation of image of shape }32 \times 32 \times 3 = 3072 \text{ values}$$
 
 - **QUIZ**: What makes a Linear Classifier, actually Linear? (Slide 2-63)
@@ -187,15 +191,15 @@ $$s = f(x_i; W)$$
 $$P(Y=k|X=x_i) = \frac{e^{s_k}}{\sum_j e^{s_j}}$$
 $$L_i = - \log P(Y = y_i | X = x_i)$$
 
-- Other approaches 
+- Equivalent interpretations
   - minimize KL divergence, i.e. Kullback-Leibler divergence
 $$D_{KL}(P||Q) = \sum_y P(y) \log \frac{P(y)}{Q(y)}$$
   - minimize Cross Entropy Loss
 $$H(P,Q)=H(p) + D_{KL}(P||Q)$$
 
-- Min/Max possible Softmax loss $L_i$? 
+- **QUIZ**: What is the Min/Max of Softmax loss $L_i$? 
   - $p: 0 \to 1$, $L_i = - \log p = \infty \to 0$
-- At initialization, all $s_j$ will be equal, what is $L_i$ assuming $C$ classes?
+- **QUIZ**: At initialization, all $s_j$ will be equal, what is $L_i$ assuming $C$ classes?
   - $L_i = -\log(1/C) = \log C = \log 10 \approx 2.3$
 
 #### SVM Classifier
