@@ -165,6 +165,7 @@ $$x = \text{flattened vector representation of image of shape }32 \times 32 \tim
   - Pedantically, its Affine, not Linear - because we have a bias term. But for convenience, we still call it Linear.
   - The formulation of Wx+b is a linear transformation.
   - Geometric Viewpoint: We want to transform our original data into another $n$-dim space, where we hope to find hyperplanes (linear boundaries) that separate our classes
+    - The line is where we set $f(x) = 0$. Now $Wx+b=0$ forms a decision boundary, where points on one side of the line have a positive score, and points on the other side of the line have a negative score.
 
 53:28 : Challenges for a Linear Classifier (Slide 2-64)
 - XOR (need 2 perceptrons)
@@ -189,7 +190,8 @@ $$x = \text{flattened vector representation of image of shape }32 \times 32 \tim
 
 $$s = f(x_i; W)$$
 $$P(Y=k|X=x_i) = \frac{e^{s_k}}{\sum_j e^{s_j}}$$
-$$L_i = - \log P(Y = y_i | X = x_i)$$
+$$L_i = - \log P(Y = y_i | X = x_i) = - \log \left( \frac{e^{s_k}}{\sum_j e^{s_j}} \right)$$
+$$L = \frac{1}{N} \sum_{i=1}^N L_i$$
 
 - Equivalent interpretations
   - minimize KL divergence, i.e. Kullback-Leibler divergence
