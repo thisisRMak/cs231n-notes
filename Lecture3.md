@@ -74,8 +74,9 @@ $$\frac{df(x)}{dx} = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$$
 
 - This is a standard optimization technique for convex functions
 
-```
+```python
 # Vanilla Gradient Descent
+
 while True:
   weights_grad = evaluate_gradient(loss_function, data, weights)
   weights += - step_size * weights_Grad # perform parameter update
@@ -85,6 +86,7 @@ Challenges of Vanilla GD
 - Calculating the full sum is expensive when $N$ is large
 
   $$L(W) = \frac{1}{N} \sum_{i=1}^N L_i (x_i, y_i, W) + \lambda R(W)$$
+  
   $$\nabla_W L(W) = \frac{1}{N} \sum_{i=1}^N \nabla_W L_i (x_i, y_i, W) + \lambda \nabla_W R(W)$$
 
 #### Stocastic Gradient Descent (SGD)
@@ -95,10 +97,10 @@ Challenges of Vanilla GD
 
 - In either case, once we've looped through all the data once, we'll call it the completion of one epoch, and loop through the data again.
 
-$$\text{SGD}: \\
-x_{t+1} = x_t - \alpha \nabla f(x_t)$$
+$$\text{SGD}:$$
+$$x_{t+1} = x_t - \alpha \nabla f(x_t)$$
 
-```
+```python
 # Vanilla Minibatch Gradient Descent
 
 while True:
@@ -132,11 +134,11 @@ Problems with SGD:
   - Build up "velocity" as a running mean of gradients
   - $\rho$ gives "momentum"; typically $\rho=0.9$ or $0.99$
 
-$$\text{SGD} +\text{Momentum}: \\ 
-v_{t+1} = \rho v_t + \nabla f(x_t) \\
-x_{t+1} = x_t - \alpha v_{t+1}$$
+$$\text{SGD} +\text{Momentum}:$$ 
+$$v_{t+1} = \rho v_t + \nabla f(x_t)$$ 
+$$x_{t+1} = x_t - \alpha v_{t+1}$$
 
-```
+```python
 # SGD Momentum
 
 vx = 0
@@ -148,11 +150,11 @@ while True:
 
 Alternate but equivalent formulation:
 
-$$\text{SGD} +\text{Momentum (alternate)}: \\ 
-v_{t+1} = \rho v_t - \alpha \nabla f(x_t)\\
-x_{t+1} = x_t + v_{t+1}$$
+$$\text{SGD} +\text{Momentum (alternate)}:$$
+$$v_{t+1} = \rho v_t - \alpha \nabla f(x_t)$$
+$$x_{t+1} = x_t + v_{t+1}$$
 
-```
+```python
 # SGD Momentum (alternate) 
 
 vx = 0
@@ -177,7 +179,7 @@ Challenges of SGD + Momentum
   - i.e. scale more in some cases, less in others
 
 
-```
+```python
 # RMSProp
 
 grad_squared = 0
@@ -207,7 +209,7 @@ Quiz
 
 
 Adam (almost)
-```
+```python
 # Adam (almost)
 
 first_moment = 0
@@ -229,7 +231,7 @@ Quiz
   - Adam now has characteristics of both RMSProp and SGD+Momentum
 
 Adam (full form)
-```
+```python
 # Adam (full form)
 
 first_moment = 0
@@ -277,15 +279,12 @@ Learning Rates as a Hyperparameter
     1. STEP
         - Reduce learning rate at fixed points, say `LR*=0.1` at epochs $30, 60, 90, \dots$
         - Common in ResNets
-    2. COSINE
-        - $\alpha_t = \frac{1}{2} \alpha_0 (1 + \cos (t \pi / T))$
-          - $\alpha_0$: Initial Learning Rate
-          - $\alpha_t$: Learning Rate at epoch $t$
-          - $T$: Total number of epochs
-    3. LINEAR
-        - $\alpha_t = \alpha_0 (1 - t / T)$
-    4. INVERSE SQRT
-        - $\alpha_t = \alpha_0 / \sqrt{t}$
+    2. COSINE: $\alpha_t = \frac{1}{2} \alpha_0 (1 + \cos (t \pi / T))$
+       - $\alpha_0$: Initial Learning Rate
+       - $\alpha_t$: Learning Rate at epoch $t$
+       - $T$: Total number of epochs
+    3. LINEAR: $\alpha_t = \alpha_0 (1 - t / T)$
+    4. INVERSE SQRT: $\alpha_t = \alpha_0 / \sqrt{t}$
 - LINEAR WARMUP
   - Increase LR initially during say first ~5000 iterations
     - High Initial learning rates can make loss explode
@@ -302,8 +301,8 @@ Learning Rates as a Hyperparameter
   - Requires a Taylor expansion, needs a second derivative, which may be difficult
   - Derivative may get very large
 
-$$J(\theta) \approx J(\theta_0) + (\theta - \theta_0)^T \nabla_\theta J(\theta_0) + \frac{1}{2} (\theta - \theta_0)^T H(\theta_0)\\
-\theta^* = \theta_0 - H^{-1} \nabla_\theta J(\theta_0)$$
+$$J(\theta) \approx J(\theta_0) + (\theta - \theta_0)^T \nabla_\theta J(\theta_0) + \frac{1}{2} (\theta - \theta_0)^T H(\theta_0)$$
+$$\theta^* = \theta_0 - H^{-1} \nabla_\theta J(\theta_0)$$
 
 - Why is this bad for Deep Learning?
   - Hessian has $O(N^2)$ elements
