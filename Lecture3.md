@@ -113,9 +113,13 @@ Problems with SGD:
 1. Loss changes quickly in one direction and slowly in another
    - could overshoot
    - could jitter around, i.e. make slow progress along shallow dimension and jitter along steep direction
+   - this happens when the Loss function has a **high condition number**
+     - **condition number**: the ratio of largest to smallest singular value of Hessian matrix
+     - one interpretation is that loss changes quickly in one direction, and slowly in another
 2. Local minima or Saddle point
    - Zero gradient might get us stuck
-   - Note: Saddle points are common as we get into higher dimensions, eg: viisualize $x^2-y^2$
+   - eg: visualize $x^2-y^2$
+   - Note: Saddle points are common as we get into higher dimensions
 3. Noisy updates from subset of data
    - Since we are examining a subset of our data at each step, we have some inherent noise at each step
 
@@ -223,6 +227,7 @@ while True:
 
 Quiz
 - The above "Adam (almost)" implementation fails in the first timestep. Why?
+  - Hint: The problem is in the second moment calculation
   - Note: `beta1, beta2` are initialized close to 1, first and second moments are initialized to 0
   - When we update $x$, the denominator is 0 in the first timestep. This creates a very large initial step even if the gradient is very small. 
 - Adam adds bias terms to account for this. See full form below.
@@ -266,6 +271,17 @@ Quiz
   - Adam's adaptive scaling affects the L2 penalty also, scaling it with per-parameter learning rates in messy unintended ways
   - Effectively Adam is butchering the effect of the regularization term, and AdamW is restoring the correct behavior of the regularization term, in ways comparable to SGD
 
+#### Optimization Summary
+
+- **GD**: Each step is tedious, have to use the entire dataset each time.
+- **true SGD** is stochastic, one sample at a time. Very fast.
+- **Mini-batch GD**: (referred to as **SGD** in cs231n notes): Quite effective, but has potential issues with saddle points, poor conditioning, and noise related from mini-batch sampling
+- **SGD+Momentum**: introduces Momentum (first moment) to mitigate the issues with saddle points, conditioning and batch related noise
+- **RMSProp**: introduces second moment, a different scaling of the gradient for each parameter, effective getting **per-parameter learning rates**, or **adaptive learning rates**
+- **Adam**: combines ideas from SGD+Momentum and RMSProp, by using both first and second moments
+- **AdamW**: improves upon Adam by fixing the Regularization issue where Adam does first and second moments on both the loss and regularization terms. RMSProp also has this problem but is a much smaller issue in RMSProp than in Adam.
+
+
 ---
 
 ### Learning Rates
@@ -274,7 +290,7 @@ Quiz
 
 Learning Rates as a Hyperparameter
 
-- Fixed vs Varying?
+- Fixed vs Varying/Decaying Learning Rate?
   - All modern deep learning implementations use a varying learning rate that decays over time
     1. STEP
         - Reduce learning rate at fixed points, say `LR*=0.1` at epochs $30, 60, 90, \dots$
@@ -289,8 +305,8 @@ Learning Rates as a Hyperparameter
   - Increase LR initially during say first ~5000 iterations
     - High Initial learning rates can make loss explode
     - linearly increasing learning rate from 0 over the first ~5000 iterations can prevent this.
-  - Empirical rule of thumb (aka Linear Scaling Law): 
-    - If you increase the batch size by $N$, also scale the initial learning rate by $N$
+- **Empirical rule of thumb (aka Linear Scaling Law)**: 
+  - If you increase the batch size by $N$, also scale the initial learning rate by $N$
 
 ---
 
