@@ -145,10 +145,91 @@ for t in range(2000):
     w2 -= 1e-4 * grad_w2
 ```
 
-**Word of caution**: While there are some useful brain analogies utilized in designing and describing neural networks. There are some biological and cognitive science inspirations here. But these analogies should only be used as inspiration and a big approximation, but not to be taken literally.
+**Word of caution on brain analogies of Neural Networks**: While there are some useful brain analogies utilized in designing and describing neural networks, these analogies should only be used as inspiration and a big approximation, but not to be taken literally. 
 
 ---
 
 ### Backpropagation
 
-- (coming soon)
+Intuition:
+
+- Problem:
+  - Deriving $\nabla_W L$ on paper each time we design or update a neural network, can be very tedious: lots of matrix calculus, prone to human error.
+  - If we want to (1) try a different loss function, or (2) change an activation function, we need to re-derive the gradient
+  - This derivation becomes infeasible to do manually for very complex models
+- Intuition:
+  - What if we programmatically calculate the gradient for any configuration of our neural network?
+- Solution:
+  - Let's arrange all the operations of a neural network in a computational graph
+    - Say we arrange the graph left-to-right, from inputs-to-outputs. Each node is an atomic computational step.
+    - First, we do a forward pass, traversing the graph left-to-right, to compute the outputs.
+    - Second, we do a backward pass, programmatically deriving the gradient by applying the chain rule at each graph node, and working backward to find the gradient with respect to all variables in the network.
+  - Why this works?
+    - Breaking down a computational graph into atomic computations allows us to modularize and leverage object oriented programming for each node. 
+    - Individual Nodes look like $q=x+y$ or $p=q \cdot x$
+    - Computing the output value of a node is straightforward
+    - Computing the gradient for a single node's output with respect to its inputs, can be done programmatically for the type of computation the node performs, by defining a few standard nodes ahead of time.
+      - We do this by carrying an **upstream gradient**, computing **local gradients** depending on the type of computation in a given node, and generating **downstream gradients** using the chain rule.
+    - Stacking these nodes together and working through the gradients with the chain rule, allows us to **backpropagate** gradients to our desired parameters.
+
+#### Computation Patterns
+
+- **Add gate**: gradient distributor
+  - $z=x+y$
+  - Upstream gradient: $\partial L / \partial z$ = u
+  - Local gradients
+    - $\partial z / \partial x = 1$
+    - $\partial z / \partial y = 1$
+  - Downstream gradients
+    - $\partial L / \partial x = (\partial L / \partial z) (\partial z / \partial x) = u \cdot 1$
+    - $\partial L / \partial y = (\partial L / \partial z) (\partial z / \partial y) = u \cdot 1$
+- **Mul gate**: swap multiplier
+  - $z=x \cdot y$
+  - Upstream gradient: $\partial L / \partial z$ = u
+  - Local gradients
+    - $\partial z / \partial x = y$
+    - $\partial z / \partial y = x$
+  - Downstream gradients
+    - $\partial L / \partial x = (\partial L / \partial z) (\partial z / \partial x) = u \cdot y$
+    - $\partial L / \partial y = (\partial L / \partial z) (\partial z / \partial y) = u \cdot x$
+- **Copy gate**: gradient adder
+  - $z_1=x$
+  - $z_2=x$
+  - Upstream gradients: 
+    - $\partial L / \partial z_1 = u_1$
+    - $\partial L / \partial z_2 = u_2$
+  - Local gradients
+    - $\partial z_1 / \partial x = 1$
+    - $\partial z_2 / \partial x = 1$
+  - Downstream gradients
+    - $\partial L / \partial x = (\partial L / \partial z_1) (\partial z_1 / \partial x) + (\partial L / \partial z_2) (\partial z_2 / \partial x) = (u_1 + u_2)$
+- **Max gate**: gradient router
+  - $z=\max(x,y)$
+  - Upstream gradients: 
+    - $\partial L / \partial z = u$
+  - Local gradients
+    - $\partial z / \partial x = 1 \text{ if } x > y \text{ else } 0$
+    - $\partial z / \partial y = 0 \text{ if } x > y \text{ else } 1$
+    - **TODO** how do we handle $x==y$?
+  - Downstream gradients
+    - $\partial L / \partial x = (\partial L / \partial z) (\partial z / \partial x) = u \text{ if } x > y \text{ else } 0$
+    - $\partial L / \partial y = (\partial L / \partial z) (\partial z / \partial y) = 0 \text{ if } x > y \text{ else } u$
+
+#### Vector Backprop
+
+- Scalar to Scalar
+  - Inputs
+    - $x \in \mathbb{R}, y \in \mathbb{R}$
+  - Regular Scalar derivatives
+    - $\partial y / \partial x \in \mathbb{R}$
+- Vector to Scalar
+  - Inputs
+    - $x \in \mathbb{R}^N, y \in \mathbb{R}$
+  - Vector Gradients
+    - $\partial y / \partial x \in \mathbb{R}^N$, $\left( \partial y / \partial x \right)_n = \partial y / \partial x_n$
+- Vector to Vector
+  - Inputs
+    - $x \in \mathbb{R}^N, y \in \mathbb{R}^N$
+  - Jacobians
+    - $\partial y / \partial x \in \mathbb{R}^(N \times M)$, $\left( \partial y / \partial x \right)_{n,m} = \partial y_m / \partial x_n$
+  
