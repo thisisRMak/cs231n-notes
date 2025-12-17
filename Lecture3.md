@@ -11,6 +11,9 @@ https://www.youtube.com/watch?v=dyNGd06MWn4&list=PLoROMvodv4rOmsNzYBMe0gJY2XS8AQ
 
 [![CS231N Lecture 3](https://img.youtube.com/vi/dyNGd06MWn4/0.jpg)](https://www.youtube.com/watch?v=dyNGd06MWn4)
 
+Supplementary Reading
+- [Optimization](https://cs231n.github.io/optimization-1/)
+
 ---
 
 ## TLDR
@@ -200,6 +203,7 @@ while True:
   - Divide learning\_rate by cumulative grad\_squared
     - i.e. Where the gradient is larger (irrespective of direction), we'll make smaller steps - but when the gradient is small, we'll make larger steps
     - This changes the way we step in steep vs shallow directions
+- Note - RMSProp is said to introduce the second moment, which the square of the first derivative (not the second derivative)
 
 Quiz
 - How does our gradient step direction change in RMSProp in the division by squared gradient values?
@@ -228,7 +232,7 @@ while True:
 Quiz
 - The above "Adam (almost)" implementation fails in the first timestep. Why?
   - Hint: The problem is in the second moment calculation
-  - Note: `beta1, beta2` are initialized close to 1, first and second moments are initialized to 0
+  - Note: `beta1`, `beta2` are initialized close to 1, first and second moments are initialized to 0
   - When we update $x$, the denominator is 0 in the first timestep. This creates a very large initial step even if the gradient is very small. 
 - Adam adds bias terms to account for this. See full form below.
   - Bias correction addresses the fact that first and second moment estimates start at zero
@@ -277,7 +281,7 @@ Quiz
 - **true SGD** is stochastic, one sample at a time. Very fast.
 - **Mini-batch GD**: (referred to as **SGD** in cs231n notes): Quite effective, but has potential issues with saddle points, poor conditioning, and noise related from mini-batch sampling
 - **SGD+Momentum**: introduces Momentum (first moment) to mitigate the issues with saddle points, conditioning and batch related noise
-- **RMSProp**: introduces second moment, a different scaling of the gradient for each parameter, effective getting **per-parameter learning rates**, or **adaptive learning rates**
+- **RMSProp**: introduces second moment (gradient squared), a different scaling of the gradient for each parameter, effective getting **per-parameter learning rates**, or **adaptive learning rates**
 - **Adam**: combines ideas from SGD+Momentum and RMSProp, by using both first and second moments
 - **AdamW**: improves upon Adam by fixing the Regularization issue where Adam does first and second moments on both the loss and regularization terms. RMSProp also has this problem but is a much smaller issue in RMSProp than in Adam.
 
@@ -290,7 +294,7 @@ Quiz
 
 Learning Rates as a Hyperparameter
 
-- Fixed vs Varying/Decaying Learning Rate?
+- Varying or Decaying Learning Rate is better than a FIXED learning rate
   - All modern deep learning implementations use a varying learning rate that decays over time
     1. STEP
         - Reduce learning rate at fixed points, say `LR*=0.1` at epochs $30, 60, 90, \dots$
